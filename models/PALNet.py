@@ -189,10 +189,7 @@ class SSC_PALNet(nn.Module):
 
         x_6 = self.conv4_2(x_6)       # (BS, 128L, 60L, 36L, 60L)
         x_6 = F.relu(x_6, inplace=True)
-        # print 'SSC: x_6', x_6.size()
-        y = self.fc12(x_6)        # (BS, 12L, 60L, 36L, 60L)
-
-        return y
+        return self.fc12(x_6)
 
 
 class SSC_PALNet(nn.Module):
@@ -372,7 +369,4 @@ class SSC_PALNet(nn.Module):
 
         x_6 = self.conv4_2(x_6)       # (BS, 128L, 60L, 36L, 60L)
         x_6 = F.relu(x_6, inplace=True)
-        # print 'SSC: x_6', x_6.size()
-        y = self.fc12(x_6)        # (BS, 12L, 60L, 36L, 60L)
-
-        return y
+        return self.fc12(x_6)

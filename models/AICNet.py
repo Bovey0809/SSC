@@ -83,8 +83,11 @@ class BasicAIC3d(nn.Module):
             y1_z = torch.mul(mx_z_list[_idx], y1_z)
             y_z = y1_z if y_z is None else y_z + y1_z
 
-        y = F.relu(y_z + x, inplace=True) if self.residual else F.relu(y_z, inplace=True)
-        return y
+        return (
+            F.relu(y_z + x, inplace=True)
+            if self.residual
+            else F.relu(y_z, inplace=True)
+        )
 
 
 class BottleneckAIC3d(nn.Module):
