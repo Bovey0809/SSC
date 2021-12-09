@@ -119,6 +119,4 @@ class SSC_RGBD_DDRNet(nn.Module):
 
         x = self.aspp(x)
 
-        y = self.conv_out(x)  # (BS, 12L, 60L, 36L, 60L)
-
-        return y
+        return self.conv_out(x)

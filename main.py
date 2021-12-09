@@ -78,13 +78,12 @@ def train():
 
     # ---- optionally resume from a checkpoint --------- ---------- ----------#
     if args.resume:
-        if os.path.isfile(args.resume):
-            print("=> loading checkpoint '{}'".format(args.resume))
-            cp_states = torch.load(args.resume)
-            net.load_state_dict(cp_states['state_dict'], strict=True)
-        else:
+        if not os.path.isfile(args.resume):
             raise Exception("=> NO checkpoint found at '{}'".format(args.resume))
 
+        print("=> loading checkpoint '{}'".format(args.resume))
+        cp_states = torch.load(args.resume)
+        net.load_state_dict(cp_states['state_dict'], strict=True)
     # -------- ---------- --- Set checkpoint --------- ---------- ----------#
     # timestamp = datetime.datetime.now().strftime("%Y%m%d-%H.%M.%S")
     # model_info = 'epoch{}_lr{}'.format(args.epochs, args.lr)
@@ -115,16 +114,16 @@ def train():
 
     print("Start training")
 
-    for epoch in range(0, args.epochs):
+    log_loss_1epoch = 0.0
+    step_count = 0
+
+    for epoch in range(args.epochs):
         # print("epoch {}".format(epoch))
         net.train()  # switch to train mode
         # adjust_learning_rate(optimizer, args.lr, epoch, n=args.lr_adj_n, rate=args.lr_adj_rate)  # n=10, rate=0.9
         torch.optim.lr_scheduler.StepLR(optimizer, step_size=args.lr_adj_n, gamma=args.lr_adj_rate, last_epoch=-1)
-        
-        decs_str = 'Training epoch {}/{}'.format(epoch + 1, args.epochs)
-        log_loss_1epoch = 0.0
-        step_count = 0
 
+        decs_str = 'Training epoch {}/{}'.format(epoch + 1, args.epochs)
         torch.cuda.empty_cache()
         for step, (rgb, depth, tsdf, target, position, _) in tqdm(enumerate(train_loader), desc=decs_str, unit='step'):
             # target should be a LongTensor. (bs, 60L, 36L, 60L)
@@ -208,10 +207,10 @@ def validate_on_dataset_stsdf(model, date_loader, save_ply=False):
             val_cnt_class = np.add(val_cnt_class, cnt_class)
             # print('acc_w, acc, p, r, iou', acc_w, acc, p, r, iou)
 
-    val_acc = val_acc / count
-    val_p = val_p / count
-    val_r = val_r / count
-    val_iou = val_iou / count
+    val_acc /= count
+    val_p /= count
+    val_r /= count
+    val_iou /= count
     val_iou_ssc, val_iou_ssc_mean = sscMetrics.get_iou(val_iou_ssc, val_cnt_class)
     return val_p, val_r, val_iou, val_acc, val_iou_ssc, val_iou_ssc_mean
 

@@ -113,7 +113,7 @@ class NYUDataset(torch.utils.data.Dataset):
     def get_filelist(self, root, subfix):
         if root is None:
             raise Exception("Oops! 'root' is None, please set the right file path.")
-        _filepaths = list()
+        _filepaths = []
         if isinstance(root, list):  # 将多个root
             for root_i in root:
                 fp = glob.glob(root_i + '/*.' + subfix)
@@ -141,16 +141,14 @@ class NYUDataset(torch.utils.data.Dataset):
         return depth
 
     @staticmethod
-    def _read_rgb(rgb_filename):  # 0.01s
+    def _read_rgb(rgb_filename):    # 0.01s
         r"""Read a RGB image with size H x W
         """
-        # rgb = misc.imread(rgb_filename)  # <type 'numpy.ndarray'>, numpy.uint8, (480, 640, 3)
-        rgb = imageio.imread(rgb_filename)  # <type 'numpy.ndarray'>, numpy.uint8, (480, 640, 3)
         # rgb = np.rollaxis(rgb, 2, 0)  # (H, W, 3)-->(3, H, W)
-        return rgb
+        return imageio.imread(rgb_filename)
 
     @staticmethod
-    def _read_rle(rle_filename):  # 0.0005s
+    def _read_rle(rle_filename):    # 0.0005s
         r"""Read RLE compression data
         Return:
             vox_origin,
@@ -159,12 +157,11 @@ class NYUDataset(torch.utils.data.Dataset):
         Shape:
             vox_rle, (240, 144, 240)
         """
-        fid = open(rle_filename, 'rb')
-        vox_origin = np.fromfile(fid, np.float32, 3).T  # Read voxel origin in world coordinates
-        cam_pose = np.fromfile(fid, np.float32, 16).reshape((4, 4))  # Read camera pose
-        vox_rle = np.fromfile(fid, np.uint32).reshape((-1, 1)).T  # Read voxel label data from file
-        vox_rle = np.squeeze(vox_rle)  # 2d array: (1 x N), to 1d array: (N , )
-        fid.close()
+        with open(rle_filename, 'rb') as fid:
+            vox_origin = np.fromfile(fid, np.float32, 3).T  # Read voxel origin in world coordinates
+            cam_pose = np.fromfile(fid, np.float32, 16).reshape((4, 4))  # Read camera pose
+            vox_rle = np.fromfile(fid, np.uint32).reshape((-1, 1)).T  # Read voxel label data from file
+            vox_rle = np.squeeze(vox_rle)  # 2d array: (1 x N), to 1d array: (N , )
         return vox_origin, cam_pose, vox_rle
 
     # this version takes 0.9s
@@ -189,7 +186,7 @@ class NYUDataset(torch.utils.data.Dataset):
             # seg_label_val = 255 if check_val == 255 else seg_class_map[check_val]
             seg_label_val = seg_class_map[check_val] if check_val != 255 else 255  # 37 classes to 12 classes
             seg_label[vox_idx: vox_idx + check_iter] = np.matlib.repmat(seg_label_val, 1, check_iter)
-            vox_idx = vox_idx + check_iter
+            vox_idx += check_iter
         seg_label = seg_label.reshape(voxel_size)  # 3D array, size 240 x 144 x 240
         return seg_label
 

@@ -53,8 +53,7 @@ def get_accuracy(predict, target, weight=None):  # 0.05s
                 weight_k[i, n] = weight[idx]
                 # weight_k[i, n] = weight[target[i, n]]
         correct = correct * weight_k
-    acc = correct.sum() / correct.size
-    return acc
+    return correct.sum() / correct.size
 
 
 def get_score_semantic_and_completion(predict, target, nonempty=None):
@@ -110,12 +109,12 @@ def get_score_semantic_and_completion(predict, target, nonempty=None):
             fp_sum[j] = fp
             fn_sum[j] = fn
 
-    acc = acc / _bs
+    acc /= _bs
     # return acc, iou_sum, cnt_class
     return acc, iou_sum, cnt_class, tp_sum, fp_sum, fn_sum
 
 
-def get_score_completion(predict, target, nonempty=None):  # on both observed and occluded voxels
+def get_score_completion(predict, target, nonempty=None):    # on both observed and occluded voxels
     """for scene completion, treat the task as two-classes problem, just empty or occupancy"""
     _bs = predict.shape[0]  # batch size
     # _C = predict.shape[1]  # _C = 12
@@ -155,7 +154,7 @@ def get_score_completion(predict, target, nonempty=None):  # on both observed an
         # acc += _acc
         # print('_p, _r, _iou', _p, _r, _iou)
     # acc = 100.0 * acc / _bs
-    p = p / _bs
-    r = r / _bs
-    iou = iou / _bs
+    p /= _bs
+    r /= _bs
+    iou /= _bs
     return p, r, iou

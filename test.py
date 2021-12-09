@@ -52,14 +52,12 @@ def test():
     net = make_model(args.model, num_classes=12).cuda()
     net = torch.nn.DataParallel(net)  # Multi-GPU
 
-    # ---- load pretrained model --------- ---------- ----------#
-    if os.path.isfile(args.resume):
-        print("=> loading checkpoint '{}'".format(args.resume))
-        cp_states = torch.load(args.resume)
-        net.load_state_dict(cp_states['state_dict'], strict=True)
-    else:
+    if not os.path.isfile(args.resume):
         raise Exception("=> NO checkpoint found at '{}'".format(args.resume))
 
+    print("=> loading checkpoint '{}'".format(args.resume))
+    cp_states = torch.load(args.resume)
+    net.load_state_dict(cp_states['state_dict'], strict=True)
     # ---- Data loader
     train_loader, val_loader = make_data_loader(args)
 

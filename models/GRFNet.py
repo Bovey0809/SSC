@@ -53,8 +53,7 @@ class Conv3dGRUCell(nn.Module):
         h_cur_bar = h_cur * r
         cc_h = self.out_conv(torch.cat((input_tensor, h_cur_bar), dim=1))
         h_bar = torch.tanh(cc_h)
-        h_next = z * h_cur + (1 - z) * h_bar
-        return h_next
+        return z * h_cur + (1 - z) * h_bar
 
 
 class SSC_RGBD_GRFNet(nn.Module):
